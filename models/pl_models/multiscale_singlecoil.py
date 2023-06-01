@@ -190,7 +190,7 @@ class SinglecoilCNF(_BaseCFlow):
                         if not multicoil:
                             recon = network_utils.format_multicoil(recon, chans=False)
                             if rss:
-                                recon = fastmri.rss_complex(recon, dim=1)
+                                recon = fastmri.rss_complex(recon, dim=1).unsqueeze(1)
                             else:
                                 rep_maps = network_utils.check_type(maps[i], 'tensor').unsqueeze(0).repeat(num_samples, 1, 1, 1)
                                 recon = network_utils.multicoil2single(recon, rep_maps)
@@ -251,9 +251,6 @@ class SinglecoilCNF(_BaseCFlow):
 
     def training_step(self, batch, batch_idx):
 
-        #Get the optimizers
-        pretrain_opt, cnf_opt = self.optimizers()
-
         # Get all the inputs
         c = batch[0].to(self.device)
         x = batch[1].to(self.device)
@@ -262,7 +259,7 @@ class SinglecoilCNF(_BaseCFlow):
 
 
         # Pass through the CNF
-        z, ldj = self(x, c, rev=False)
+        z, ldj = self(x, c, rev=False, norm_val=norm_val)
 
         # Find the negative log likelihood
         loss = self.get_nll(z, ldj, give_bpd=True)
@@ -270,8 +267,6 @@ class SinglecoilCNF(_BaseCFlow):
         # Log the training loss
         self.log('train_loss', loss, prog_bar=True)
 
-        #Clip the gradient
-        self.clip_gradients(cnf_opt, gradient_clip_val=1.0)
 
         return loss
 
@@ -285,7 +280,7 @@ class SinglecoilCNF(_BaseCFlow):
         board = self.logger.experiment
 
         with torch.no_grad():
-            z, ldj = self(x, c, rev=False)
+            z, ldj = self(x, c, rev=False, norm_val=norm_val)
 
             # Find the negative log likelihood
             loss = self.get_nll(z, ldj, give_bpd=True)

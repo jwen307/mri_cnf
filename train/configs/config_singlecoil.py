@@ -28,7 +28,7 @@ class Config():
 
             'train_args':
                 {
-                'lr': 5e-4,
+                'lr': 2e-4,
                 'batch_size': 4,
                 'pretrain_unet': False
                 },

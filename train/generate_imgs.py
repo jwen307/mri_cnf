@@ -33,10 +33,12 @@ args = helper.flags()
 #Get the checkpoint arguments if needed
 load_ckpt_dir = args.load_ckpt_dir
 load_last_ckpt = args.load_last_ckpt
+# load_ckpt_dir = '/storage/jeff/mri_cnf/MulticoilCNF/version_2/'
+# load_last_ckpt = False
 
 # Determine which sample to use
 samp_num = 10
-num_samples= 32
+num_samples= 8
 temp = 1.0
 
 
@@ -84,12 +86,12 @@ if __name__ == "__main__":
         Path(report_path).mkdir(parents=True, exist_ok=True)
 
         # Get the data
-        dataset = data.val
+        dataset = data.test
         # Get the data
         cond = dataset[samp_num][0].unsqueeze(0).to(model.device)
         gt = dataset[samp_num][1].unsqueeze(0).to(model.device)
         mask = dataset[samp_num][2].to(model.device)
-        norm_val = torch.tensor(dataset[samp_num][3]).unsqueeze(0).to(model.device)
+        norm_val = dataset[samp_num][3].unsqueeze(0).to(model.device)
         maps = network_utils.get_maps(cond, model.acs_size, norm_val)
 
         # Generate the posteriors
@@ -119,8 +121,8 @@ if __name__ == "__main__":
         viz.save_posteriors(gt_mag, rotate=True, save_dir=os.path.join(report_path, 'gt'))
         viz.save_posteriors(cond_mag, rotate=True, save_dir=os.path.join(report_path, 'cond'))
         viz.save_posteriors(mean, rotate=True, save_dir=os.path.join(report_path, 'mean'))
-        viz.save_posteriors(samples[0], rotate=True, save_dir=os.path.join(report_path, 'samples'), num_samples=len(samples))
-        viz.save_posteriors(std, rotate=True, save_dir=os.path.join(report_path, 'std'))
+        viz.save_posteriors(samples[0].cpu(), rotate=True, save_dir=os.path.join(report_path, 'samples'), num_samples=len(samples[0]))
+        viz.save_posteriors(std, rotate=True, std=True, save_dir=os.path.join(report_path, 'std'))
 
         # Get the MAP estimate
         if config['flow_args']['model_type'] == 'MulticoilCNF':
@@ -129,10 +131,10 @@ if __name__ == "__main__":
                                                 mask=mask,
                                                 norm_val=norm_val,
                                                 rss=rss,
-                                                epochs=5000)
+                                                epochs=100)
 
             # Save the image
-            viz.save_posteriors(sample_MAP[0], rotate=True, save_dir=os.path.join(report_path, 'MAP'))
+            viz.save_posteriors(sample_MAP[0].cpu(), rotate=True, save_dir=os.path.join(report_path, 'MAP'))
 
 
 

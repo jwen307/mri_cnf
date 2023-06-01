@@ -158,11 +158,11 @@ class CFIDMetric:
 
     def _get_embed_im(self, multicoil_inp):
         # Define new tensor which will be passed to embedding network
-        embed_ims = torch.zeros(size=(multicoil_inp.size(0), 3, multicoil_inp.size(1), multicoil_inp.size(2)),
+        embed_ims = torch.zeros(size=(multicoil_inp.size(0), 3, multicoil_inp.size(-2), multicoil_inp.size(-1)),
                                 device='cuda')
 
         for i in range(multicoil_inp.size(0)):
-            single_im = multicoil_inp[i].unsqueeze(0)
+            single_im = multicoil_inp[i]
 
             # Normalize image to be in [0, 1]
             im = (single_im - torch.min(single_im)) / (torch.max(single_im) - torch.min(single_im))
@@ -201,27 +201,27 @@ class CFIDMetric:
                                             split_num=4,
                                             rss=self.rss)
 
-            # Stack the samples
-            samples = torch.concat(samples, dim=0)
+                # Stack the samples
+                samples = torch.concat(samples, dim=0)
 
-            # Unnormalize the gt and cond for evaluation
-            cond = network_utils.unnormalize(cond, norm_val)
-            gt = network_utils.unnormalize(gt, norm_val)
+                # Unnormalize the gt and cond for evaluation
+                cond = network_utils.unnormalize(cond, norm_val)
+                gt = network_utils.unnormalize(gt, norm_val)
 
-            # Get the magnitude images
-            gt = network_utils.get_magnitude(gt, maps=maps, rss=self.rss)
-            cond = network_utils.get_magnitude(cond, maps=maps, rss=self.rss)
+                # Get the magnitude images
+                gt = network_utils.get_magnitude(gt, maps=maps, rss=self.rss)
+                cond = network_utils.get_magnitude(cond, maps=maps, rss=self.rss)
 
-            # Prepare the images for the embedding network
-            image = self._get_embed_im(samples).to(self.model.device)
-            condition_im = self._get_embed_im(cond).to(self.model.device)
-            true_im = self._get_embed_im(gt).to(self.model.device)
+                # Prepare the images for the embedding network
+                image = self._get_embed_im(samples).to(self.model.device)
+                condition_im = self._get_embed_im(cond).to(self.model.device)
+                true_im = self._get_embed_im(gt).to(self.model.device)
 
-            # Apply normalization transform then pass to VGG
-            # Note: You do not have to resize images for VGG in PyTorch
-            img_e = self.image_embedding(self.transforms(image))
-            cond_e = self.condition_embedding(self.transforms(condition_im))
-            true_e = self.image_embedding(self.transforms(true_im))
+                # Apply normalization transform then pass to VGG
+                # Note: You do not have to resize images for VGG in PyTorch
+                img_e = self.image_embedding(self.transforms(image))
+                cond_e = self.condition_embedding(self.transforms(condition_im))
+                true_e = self.image_embedding(self.transforms(true_im))
 
             true_embed.append(true_e.cpu())
             image_embed.append(img_e.cpu())
@@ -316,7 +316,12 @@ class CFIDMetric:
 
                 with torch.no_grad():
 
-                        obs, gt, mask, norm_val, acquisition, fname, slice_num = data
+                        # Get the data
+                        obs = data[0].to(self.model.device)
+                        gt = data[1].to(self.model.device)
+                        mask = data[2].to(self.model.device)
+                        norm_val = data[3].to(self.model.device)
+
                         maps = network_utils.get_maps(obs, num_acs=self.model.acs_size, normalizing_val=norm_val)
 
                         gt = gt.to('cuda')

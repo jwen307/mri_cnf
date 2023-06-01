@@ -82,17 +82,26 @@ def load_model(model_type, config, ckpt=None):
     ckpt: Checkpoint to load
     '''
 
+    # Get the model
     if model_type == 'MulticoilCNF':
-        # Get the model
-        model = MulticoilCNF(config)
+        if ckpt is not None:
+            print('Loading checkpoint: {}'.format(ckpt))
+            model = MulticoilCNF.load_from_checkpoint(ckpt, config=config)
+        else:
+            model = MulticoilCNF(config)
     elif model_type == 'SinglecoilCNF':
-        model = SinglecoilCNF(config)
+        if ckpt is not None:
+            print('Loading checkpoint: {}'.format(ckpt))
+            model = SinglecoilCNF.load_from_checkpoint(ckpt, config=config)
+        else:
+            model = SinglecoilCNF(config)
     else:
         raise ValueError('Model type not recognized')
 
     # Load the checkpoint if needed
-    if ckpt is not None:
-        model.load_from_checkpoint(ckpt)
+    # if ckpt is not None:
+    #     print('Loading checkpoint: {}'.format(ckpt))
+    #     model.load_from_checkpoint(ckpt)
 
     return model
 

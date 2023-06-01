@@ -5,7 +5,7 @@ This is the official implementation of the paper "A Conditional Normalizing Flow
 This repository contains the code for training and testing a conditional normalizing flow for multicoil MRI reconstruction.
 
 ## Installation
-Please follow in the instructions to setup the environment to run the repo.
+Please follow the instructions to setup the environment to run the repo.
 1. Clone this repository
 2. Create a new environment with the following commands
 ```
@@ -47,6 +47,9 @@ Note: This can be run for the singlecoil case or for the multicoil case as in th
 
 All models will be saved in the logging folder specified in [variables.py](variables.py)
 
+Some pretrained models can be downloaded from [here](https://drive.google.com/drive/folders/1fhhdBS6LnOYvqmpAPkAovdr2gxZombKu?usp=sharing). 
+Note: These models were retrained with the new, cleaned code found in this repo. Metrics are similar to those reported in the paper, but
+may vary slightly.
 ## Evaluation
 To get the evaluation metrics like PSNR, SSIM, FID, and cFID, run the following command
 ```

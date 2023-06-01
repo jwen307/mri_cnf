@@ -172,7 +172,7 @@ class MulticoilCNF(_BaseCFlow):
                     if not multicoil:
                         recon = network_utils.format_multicoil(recon, chans=False)
                         if rss:
-                            recon = fastmri.rss_complex(recon, dim=1)
+                            recon = fastmri.rss_complex(recon, dim=1).unsqueeze(1)
                         else:
                             rep_maps = network_utils.check_type(maps[i], 'tensor').unsqueeze(0).repeat(num_samples, 1, 1, 1)
                             recon = network_utils.multicoil2single(recon, rep_maps)
@@ -194,7 +194,7 @@ class MulticoilCNF(_BaseCFlow):
             num_nan = 0
 
             # Check if the reconstruction is valid
-            while recon[i].abs().max() > 10 or torch.isnan(recon[i].abs().max()):
+            while recon[i].abs().max() > 20 or torch.isnan(recon[i].abs().max()):
                 with torch.no_grad():
                     # Draw samples from a distribution
                     z = self.sample_distrib(1, temp=temp)
@@ -304,6 +304,7 @@ class MulticoilCNF(_BaseCFlow):
 
             # Get the magnitude image
             if not multicoil:
+                recon = network_utils.format_multicoil(recon, chans=False)
 
                 # Get the magnitude predictions
                 if rss:

@@ -104,7 +104,7 @@ def ssim(
             )
         else:
             ssim = ssim + structural_similarity(
-                gt[slice_num], pred[slice_num], data_range=maxval
+                gt[slice_num], pred[slice_num], channel_axis=0, data_range=maxval
             )
 
     return ssim / gt.shape[0]
@@ -193,7 +193,7 @@ def calc_metrics_list(reconstructions, targets, is_complex=False):
     #     }
     # }
 
-    mean_nmse= float(np.mean(nmses)),
+    mean_nmse= float(np.mean(nmses))
     std_err_nmse= float(np.std(nmses) / np.sqrt(len(nmses)))
     mean_psnr= float(np.mean(psnrs))
     std_err_psnr= float(np.std(psnrs) / np.sqrt(len(psnrs)))
@@ -201,6 +201,7 @@ def calc_metrics_list(reconstructions, targets, is_complex=False):
     std_err_ssim= float(np.std(ssims) / np.sqrt(len(ssims)))
     mean_rsnr=  float(np.mean(rsnrs))
     std_err_rsnr=  float(np.std(rsnrs) / np.sqrt(len(rsnrs)))
+
 
     report_dict = {
         'mean_results':{
@@ -275,10 +276,16 @@ def evaluate_mean(model, data, num_samples, temp, complex=False, rss=False):
 
 
 # Get the evaluation metrics for the posteriors
-def evaluate_posterior(model, loader, num_samples, temp, rss=False):
+def evaluate_posterior(model, data, num_samples, temp, rss=False, test=True):
 
     # Use the VGG16 model for embedding
     vgg16 = fid.VGG16Embedding()
+
+    if test:
+        loader = data.test_dataloader()
+    else:
+        loader = data.val_dataloader()
+
 
     cfid_metric = fid.CFIDMetric(model,
                                  loader,
@@ -296,7 +303,7 @@ def evaluate_posterior(model, loader, num_samples, temp, rss=False):
     x_true_inter = torch.repeat_interleave(x_true, num_samples, dim=0)
     y_true_inter = torch.repeat_interleave(y_true, num_samples, dim=0)
     cfid_val = cfid_metric.get_cfid(y_predict, x_true_inter, y_true_inter)
-    fid_val = cfid_metric.get_fid(y_predict, y_true_inter)
+    fid_val = cfid_metric.get_fid(y_predict, data.train_dataloader())
 
     report_dict = {
         'posterior_results':{

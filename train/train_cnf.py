@@ -91,17 +91,27 @@ if __name__ == "__main__":
             filename='best_bpd',
             )
 
-
-        # Create the trainers
-        trainer = pl.Trainer(
-            max_epochs=150,
-            #gradient_clip_val=1.0,
-            accelerator='gpu',
-            logger=logger,
-            check_val_every_n_epoch=1,
-            callbacks=[ckpt_callback],
-            strategy='ddp_find_unused_parameters_true',
-        )
+        if model_type == 'MulticoilCNF':
+            # Create the trainers (Note: MulticoilCNF does manual optimization)
+            trainer = pl.Trainer(
+                max_epochs=150,
+                accelerator='gpu',
+                logger=logger,
+                check_val_every_n_epoch=1,
+                callbacks=[ckpt_callback],
+                strategy='ddp_find_unused_parameters_true',
+            )
+        elif model_type == 'SinglecoilCNF':
+            # Create the trainers
+            trainer = pl.Trainer(
+                max_epochs=300,
+                gradient_clip_val=1.0,
+                accelerator='gpu',
+                logger=logger,
+                check_val_every_n_epoch=1,
+                callbacks=[ckpt_callback],
+                strategy='ddp_find_unused_parameters_true',
+            )
 
         # Save the configurations
         model_path = trainer.logger.log_dir

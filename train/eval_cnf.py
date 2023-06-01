@@ -84,12 +84,12 @@ if __name__ == "__main__":
             documents = yaml.dump(mean_metrics, file)
 
         # Get the posterior metrics
-        posterior_1 = metrics.evaluate_posterior(model, data.test_dataloader, num_samples = 8, temp=1.0, rss=rss)
+        posterior_1 = metrics.evaluate_posterior(model, data, num_samples = 8, temp=1.0, rss=rss, test=True)
         with open(os.path.join(report_path, 'metrics_posterior1.yaml'), 'w') as file:
             documents = yaml.dump(posterior_1, file)
 
         # Get the posterior 2 metrics
-        posterior_2 = metrics.evaluate_posterior(model, data.val_dataloader, num_samples = 8, temp=0.5, rss=rss)
+        posterior_2 = metrics.evaluate_posterior(model, data, num_samples = 8, temp=1.0, rss=rss, test=False)
         with open(os.path.join(report_path, 'metrics_posterior2.yaml'), 'w') as file:
             documents = yaml.dump(posterior_2, file)
 
