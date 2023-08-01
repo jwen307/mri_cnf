@@ -2,6 +2,7 @@
 
 ## Description
 This is the official implementation of the paper "A Conditional Normalizing Flow for Accelerated Multi-Coil MR Imaging" (ICML 2023).
+The paper can be found in the PMLR proceedings [here](https://proceedings.mlr.press/v202/wen23a/wen23a.pdf) or on Arxiv [here](https://arxiv.org/abs/2306.01630).
 This repository contains the code for training and testing a conditional normalizing flow for multicoil MRI reconstruction.
 
 ## Installation
@@ -129,8 +130,11 @@ Please cite our paper if you find this work useful
 ```
 @article{Wen:ICML:23,
    author= {Wen, Jeffrey and Ahmad, Rizwan and Schniter, Philip}
-   title = {A Conditional Normalizing Flow for Accelerated Multi-Coil MR Imaging},
+   title = {A Conditional Normalizing Flow for Accelerated Multi-Coil {MR} Imaging},
    journal = {Proc. Int. Conf. Mach. Learn.},
    year={2023},
+   pages = {36926--36939},
+   volume = {202},
+   publisher = {PMLR},
 }
 ```
